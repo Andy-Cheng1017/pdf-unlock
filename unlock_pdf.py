@@ -62,7 +62,8 @@ def main():
         print(f"[{r}] {f}")
     print(f"\n完成：{ok}/{len(files)} 個檔案已解鎖")
     if a.pause:
-        os.system("timeout /t 3 >nul")
+        import time
+        time.sleep(3)
 
 
 if __name__ == "__main__":

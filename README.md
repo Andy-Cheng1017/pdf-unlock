@@ -78,6 +78,27 @@ build_exe.bat      # 產生 dist\unlock_pdf.exe
 
 ---
 
+## Ubuntu（Nautilus 檔案管理員）
+
+```bash
+sudo apt install -y git
+git clone https://github.com/Andy-Cheng1017/pdf-unlock.git
+cd pdf-unlock
+bash install_ubuntu.sh
+```
+
+腳本會自動安裝 Python 環境與 pikepdf（放在 `~/.local/share/pdf-unlock`，不需另外裝 Python 套件）。
+
+使用：在檔案管理員對 PDF、資料夾或資料夾空白處按右鍵 → **Scripts（腳本）→ 解鎖 PDF**，完成後會跳出通知。若選單沒出現，執行 `nautilus -q` 後重新開啟。
+
+命令列也可使用：`~/.local/share/pdf-unlock/venv/bin/python ~/.local/share/pdf-unlock/unlock_pdf.py <檔案或資料夾>`
+
+移除：`bash install_ubuntu.sh --uninstall`
+
+> Ubuntu 的 Nautilus 把自訂項目收在「Scripts」子選單，無法放到頂層。
+
+---
+
 ## 常見問題
 
 | 問題 | 解法 |
