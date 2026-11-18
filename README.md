@@ -28,13 +28,16 @@
 unlock_pdf.exe
 install.bat
 uninstall.bat
-install_context_menu.ps1
+README.md
 ```
 
 > 若 Windows SmartScreen 出現「已保護您的電腦」，點「其他資訊」→「仍要執行」。exe 未簽章，這是正常現象。
 
+> 這是 Windows 對沒有付費簽章的新 exe 的警告，不代表程式需要 Python，也不要下載其他檔案或關閉系統防護。若公司電腦完全禁止執行未簽章 exe，請由公司 IT 審核後安裝，或使用 IT 核准的 PDF/qpdf 工具。
+
 ### 3. 安裝右鍵選單
 雙擊 `install.bat`，看到「已安裝右鍵選單」即完成（不需系統管理員）。
+安裝過程只執行 `unlock_pdf.exe`，不需要 Python、PowerShell、pip 或其他軟體。
 
 ### 4. 使用
 - **單一 PDF**：對 PDF 按右鍵 →（Windows 11 需先點 **顯示更多選項**）→ **解鎖 PDF**
@@ -47,6 +50,8 @@ install_context_menu.ps1
 
 ### 5. 移除
 雙擊 `uninstall.bat`，再刪除資料夾即可。
+
+若也不需要右鍵選單，可完全不安裝，直接把 PDF 或資料夾拖到 `unlock_pdf.exe`。
 
 ---
 

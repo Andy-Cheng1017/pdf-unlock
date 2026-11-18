@@ -71,13 +71,76 @@ def pause():
         pass
 
 
+def context_menu(installed: bool) -> bool:
+    if sys.platform != "win32":
+        print("右鍵選單目前僅支援 Windows。", file=sys.stderr)
+        return False
+
+    import winreg
+
+    executable = str(Path(sys.executable).resolve())
+    items = (
+        (r"Software\Classes\SystemFileAssociations\.pdf\shell\UnlockPDF", "%1"),
+        (r"Software\Classes\Directory\shell\UnlockPDF", "%1"),
+        (r"Software\Classes\Directory\Background\shell\UnlockPDF", "%V"),
+    )
+    if installed:
+        for relative_key, argument in items:
+            with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, relative_key) as key:
+                winreg.SetValueEx(key, "", 0, winreg.REG_SZ, "解鎖 PDF")
+                winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, "shell32.dll,47")
+            with winreg.CreateKeyEx(
+                winreg.HKEY_CURRENT_USER, relative_key + r"\command"
+            ) as command_key:
+                winreg.SetValueEx(
+                    command_key,
+                    "",
+                    0,
+                    winreg.REG_SZ,
+                    f'"{executable}" --pause "{argument}"',
+                )
+    else:
+        for relative_key, _ in items:
+            try:
+                winreg.DeleteKeyEx(
+                    winreg.HKEY_CURRENT_USER,
+                    relative_key + r"\command",
+                    access=winreg.KEY_WOW64_64KEY,
+                )
+                winreg.DeleteKeyEx(
+                    winreg.HKEY_CURRENT_USER,
+                    relative_key,
+                    access=winreg.KEY_WOW64_64KEY,
+                )
+            except FileNotFoundError:
+                pass
+
+    action = "安裝" if installed else "移除"
+    print(f"已{action}右鍵選單。")
+    if installed:
+        print("Windows 11 請在右鍵後按「顯示更多選項」。")
+        print(f"程式位置：{executable}")
+    return True
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("targets", nargs="*")
     ap.add_argument("-p", "--password", default="")
     ap.add_argument("--backup", action="store_true")
     ap.add_argument("--pause", action="store_true", help="結束前暫停(右鍵選單用)")
+    ap.add_argument("--install-menu", action="store_true", help="安裝 Windows 右鍵選單")
+    ap.add_argument(
+        "--uninstall-menu", action="store_true", help="移除 Windows 右鍵選單"
+    )
     a = ap.parse_args()
+
+    if a.install_menu:
+        context_menu(True)
+        return 0
+    if a.uninstall_menu:
+        context_menu(False)
+        return 0
 
     if not a.targets:
         selected = choose_file()
