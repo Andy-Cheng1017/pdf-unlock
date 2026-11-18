@@ -1,4 +1,4 @@
-﻿# 安裝/移除「解鎖 PDF」右鍵選單（僅目前使用者，不需系統管理員）
+# 安裝/移除「解鎖 PDF」右鍵選單（僅目前使用者，不需系統管理員）
 # 若同資料夾有 unlock_pdf.exe 就用它（不需 Python），否則使用 python unlock_pdf.py
 param([switch]$Uninstall)
 
@@ -12,6 +12,14 @@ if (Test-Path $exe) {
     $prefix = "`"$python`" `"$py`""
 } else {
     Write-Host "找不到 unlock_pdf.exe 或 unlock_pdf.py"; exit 1
+}
+
+if (-not (Test-Path $exe)) {
+    if (-not (Test-Path $py) -or -not (Get-Command python -ErrorAction SilentlyContinue)) {
+        Write-Host "這是原始碼，不是 Windows 安裝包。請至 GitHub Releases 下載 pdf-unlock-win.zip。"
+        exit 1
+    }
+    Write-Host "警告：目前使用 Python 版本。一般使用者請改用 Releases 的免安裝 zip。" -ForegroundColor Yellow
 }
 
 $keys = @{

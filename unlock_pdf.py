@@ -46,13 +46,46 @@ def collect(targets):
             yield p
 
 
+def choose_file():
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+
+        root = tk.Tk()
+        root.withdraw()
+        selected = filedialog.askopenfilename(
+            title="選擇要解鎖的 PDF",
+            filetypes=[("PDF files", "*.pdf")],
+        )
+        root.destroy()
+        return selected
+    except Exception as error:
+        print(f"無法開啟檔案選擇視窗：{error}", file=sys.stderr)
+        return ""
+
+
+def pause():
+    try:
+        input("\n按 Enter 關閉...")
+    except (EOFError, KeyboardInterrupt):
+        pass
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("targets", nargs="+")
+    ap.add_argument("targets", nargs="*")
     ap.add_argument("-p", "--password", default="")
     ap.add_argument("--backup", action="store_true")
     ap.add_argument("--pause", action="store_true", help="結束前暫停(右鍵選單用)")
     a = ap.parse_args()
+
+    if not a.targets:
+        selected = choose_file()
+        if not selected:
+            print("未選擇 PDF。也可把 PDF 或資料夾拖到 unlock_pdf.exe 上。")
+            pause()
+            return 1
+        a.targets = [selected]
 
     files = list(collect(a.targets))
     ok = 0
@@ -61,9 +94,9 @@ def main():
         ok += r == "OK"
         print(f"[{r}] {f}")
     print(f"\n完成：{ok}/{len(files)} 個檔案已解鎖")
-    if a.pause:
-        import time
-        time.sleep(3)
+    if a.pause or not files:
+        pause()
+    return 0 if files else 1
 
 
 if __name__ == "__main__":

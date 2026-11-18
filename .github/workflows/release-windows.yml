@@ -1,0 +1,33 @@
+name: Release Windows package
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Build standalone executable
+        shell: pwsh
+        run: |
+          pip install -r requirements.txt pyinstaller
+          pyinstaller --onefile --console --name unlock_pdf --collect-all pikepdf unlock_pdf.py
+          New-Item release -ItemType Directory | Out-Null
+          Copy-Item install.bat, uninstall.bat, install_context_menu.ps1, dist\unlock_pdf.exe release\
+          Copy-Item README.md release\
+          Compress-Archive -Path release\* -DestinationPath pdf-unlock-win.zip
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: pdf-unlock-win.zip
+          fail_on_unmatched_files: true

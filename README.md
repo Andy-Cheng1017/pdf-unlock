@@ -14,7 +14,9 @@
 ## 方法 A：一般使用者（不需要 Python）
 
 ### 1. 下載
-到 [Releases](../../releases/latest) 下載 `pdf-unlock-win.zip`。
+到 [Releases](../../releases/latest) 的 **Assets** 下載 `pdf-unlock-win.zip`。
+
+> 不要下載「Source code」。Source code 是給開發者用的，沒有 `unlock_pdf.exe`。
 
 ### 2. 解壓縮到「固定」位置
 例如 `C:\Tools\pdf-unlock\`。
@@ -105,6 +107,7 @@ bash install_ubuntu.sh
 |------|------|
 | 顯示 `FAIL (需要開啟密碼…)` | 這類 PDF 開啟就要密碼，改用 `-p 密碼`（命令列） |
 | 右鍵選單沒出現 | Win11 請點「顯示更多選項」；或重新執行 `install.bat` |
+| 執行 `install.bat` 顯示找不到 exe | 你下載了 Source code；請重新下載 Releases 的 `pdf-unlock-win.zip` |
 | 搬動資料夾後右鍵失效 | 在新位置重新執行 `install.bat` |
 | 解鎖後仍無法複製文字 | 該 PDF 可能是掃描圖片，沒有文字層，需要 OCR |
 | 想保留原檔 | 命令列加 `--backup` |
