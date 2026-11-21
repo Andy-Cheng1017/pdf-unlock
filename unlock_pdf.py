@@ -8,6 +8,7 @@
 import argparse
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 import pikepdf
@@ -15,23 +16,28 @@ import pikepdf
 
 def unlock(path: Path, password: str = "", backup: bool = False) -> str:
     try:
-        with pikepdf.open(path, password=password) as pdf:
-            if not pdf.is_encrypted:
-                return "skip (未加密)"
-            tmp = path.with_suffix(".unlocking.tmp")
-            pdf.save(tmp)  # 不指定 encryption 即為移除加密
+        with tempfile.TemporaryDirectory(prefix=".pdf-unlock-", dir=path.parent) as temp_dir:
+            tmp = Path(temp_dir) / "unlocked.pdf"
+            with pikepdf.open(path, password=password) as pdf:
+                if not pdf.is_encrypted:
+                    return "skip (未加密)"
+                pdf.save(tmp)
+            if backup:
+                bak = path.with_name(path.stem + ".locked.pdf")
+                if bak.exists():
+                    return f"FAIL (備份檔已存在：{bak})"
+                os.replace(path, bak)
+                try:
+                    os.replace(tmp, path)
+                except OSError:
+                    os.replace(bak, path)
+                    raise
+            else:
+                os.replace(tmp, path)
     except pikepdf.PasswordError:
         return "FAIL (需要開啟密碼，請用 -p)"
     except Exception as e:
         return f"FAIL ({e})"
-    if backup:
-        bak = path.with_name(path.stem + ".locked.pdf")
-        if bak.exists():
-            bak.unlink()
-        os.replace(path, bak)
-        os.replace(tmp, path)
-    else:
-        os.replace(tmp, path)
     return "OK"
 
 
@@ -79,6 +85,9 @@ def context_menu(installed: bool) -> bool:
     import winreg
 
     executable = str(Path(sys.executable).resolve())
+    command = f'"{executable}"'
+    if not getattr(sys, "frozen", False):
+        command += f' "{Path(__file__).resolve()}"'
     items = (
         (r"Software\Classes\SystemFileAssociations\.pdf\shell\UnlockPDF", "%1"),
         (r"Software\Classes\Directory\shell\UnlockPDF", "%1"),
@@ -97,7 +106,7 @@ def context_menu(installed: bool) -> bool:
                     "",
                     0,
                     winreg.REG_SZ,
-                    f'"{executable}" --pause "{argument}"',
+                    f'{command} --pause "{argument}"',
                 )
     else:
         for relative_key, _ in items:
@@ -119,7 +128,7 @@ def context_menu(installed: bool) -> bool:
     print(f"已{action}右鍵選單。")
     if installed:
         print("Windows 11 請在右鍵後按「顯示更多選項」。")
-        print(f"程式位置：{executable}")
+        print(f"程式位置：{command}")
     return True
 
 
@@ -136,11 +145,9 @@ def main():
     a = ap.parse_args()
 
     if a.install_menu:
-        context_menu(True)
-        return 0
+        return 0 if context_menu(True) else 1
     if a.uninstall_menu:
-        context_menu(False)
-        return 0
+        return 0 if context_menu(False) else 1
 
     if not a.targets:
         selected = choose_file()
@@ -152,14 +159,18 @@ def main():
 
     files = list(collect(a.targets))
     ok = 0
+    failed = 0
     for f in files:
         r = unlock(f, a.password, a.backup)
         ok += r == "OK"
+        failed += r.startswith("FAIL")
         print(f"[{r}] {f}")
-    print(f"\n完成：{ok}/{len(files)} 個檔案已解鎖")
-    if a.pause or not files:
+    if not files:
+        print("找不到 PDF 檔案，請確認路徑。", file=sys.stderr)
+    print(f"\n完成：{ok}/{len(files)} 個檔案已解鎖，{failed} 個失敗")
+    if a.pause or getattr(sys, "frozen", False):
         pause()
-    return 0 if files else 1
+    return 0 if files and not failed else 1
 
 
 if __name__ == "__main__":

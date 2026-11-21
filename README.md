@@ -13,12 +13,17 @@
 
 ## 方法 A：一般使用者（不需要 Python）
 
-### 1. 下載
-到 [Releases](../../releases/latest) 的 **Assets** 下載 `pdf-unlock-win.zip`。
+### 1. 下載與使用（不需安裝）
+到 [Releases](../../releases/latest) 的 **Assets** 下載 `unlock_pdf.exe`。
+雙擊它並選擇 PDF，或把 PDF／資料夾拖到 exe 上。處理結果會停留在視窗中，
+按 Enter 才會關閉。
+
+若最新 Release 沒有單獨的 exe，下載 `pdf-unlock-win.zip`，解壓後使用其中的 `unlock_pdf.exe`。
 
 > 不要下載「Source code」。Source code 是給開發者用的，沒有 `unlock_pdf.exe`。
 
-### 2. 解壓縮到「固定」位置
+### 2. 安裝右鍵選單（可選）
+如需右鍵功能，下載並解壓 `pdf-unlock-win.zip` 到「固定」位置，
 例如 `C:\Tools\pdf-unlock\`。
 **不要放在下載資料夾或桌面**，右鍵選單會記住這個路徑，檔案搬走就失效。
 
@@ -31,9 +36,8 @@ uninstall.bat
 README.md
 ```
 
-> 若 Windows SmartScreen 出現「已保護您的電腦」，點「其他資訊」→「仍要執行」。exe 未簽章，這是正常現象。
-
-> 這是 Windows 對沒有付費簽章的新 exe 的警告，不代表程式需要 Python，也不要下載其他檔案或關閉系統防護。若公司電腦完全禁止執行未簽章 exe，請由公司 IT 審核後安裝，或使用 IT 核准的 PDF/qpdf 工具。
+> exe 未簽章，可能被 SmartScreen 或公司安全政策阻擋。請確認下載來源，
+> 並遵循公司政策，由 IT 審核；不要關閉或繞過安全防護。
 
 ### 3. 安裝右鍵選單
 雙擊 `install.bat`，看到「已安裝右鍵選單」即完成（不需系統管理員）。
@@ -42,7 +46,7 @@ README.md
 ### 4. 使用
 - **單一 PDF**：對 PDF 按右鍵 →（Windows 11 需先點 **顯示更多選項**）→ **解鎖 PDF**
 - **整個資料夾**：對資料夾按右鍵 → **解鎖 PDF**；或在資料夾內的空白處按右鍵 → **解鎖 PDF**
-- **拖曳**：把 PDF 或資料夾直接拖到 `unlock_pdf.exe` 上
+- **直接使用**：雙擊 exe 選擇 PDF，或把 PDF／資料夾拖到 exe 上
 
 跑完會顯示 `[OK]` 與成功數量。`[skip]` 表示該檔本來就沒有加密。
 
@@ -70,11 +74,11 @@ python unlock_pdf.py file.pdf -p 密碼             # 需要開啟密碼
 python unlock_pdf.py file.pdf --backup           # 另存原檔為 file.locked.pdf
 ```
 
-安裝右鍵選單（沒有 exe 時會自動改用 `python unlock_pdf.py`）：
+安裝或移除右鍵選單：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File install_context_menu.ps1
-powershell -ExecutionPolicy Bypass -File install_context_menu.ps1 -Uninstall
+python unlock_pdf.py --install-menu
+python unlock_pdf.py --uninstall-menu
 ```
 
 ### 自行打包 exe

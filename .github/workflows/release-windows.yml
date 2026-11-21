@@ -21,7 +21,11 @@ jobs:
         shell: pwsh
         run: |
           pip install -r requirements.txt pyinstaller
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m unittest discover -s tests -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           pyinstaller --onefile --console --name unlock_pdf --collect-all pikepdf unlock_pdf.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           New-Item release -ItemType Directory | Out-Null
           Copy-Item install.bat, uninstall.bat, dist\unlock_pdf.exe release\
           Copy-Item README.md release\
@@ -29,5 +33,7 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: pdf-unlock-win.zip
+          files: |
+            pdf-unlock-win.zip
+            dist/unlock_pdf.exe
           fail_on_unmatched_files: true
