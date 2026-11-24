@@ -14,23 +14,22 @@
 ## 方法 A：一般使用者（不需要 Python）
 
 ### 1. 下載與使用（不需安裝）
-到 [Releases](../../releases/latest) 的 **Assets** 下載 `unlock_pdf.exe`。
-雙擊它並選擇 PDF，或把 PDF／資料夾拖到 exe 上。處理結果會停留在視窗中，
-按 Enter 才會關閉。
+到 [Releases](../../releases/latest) 的 **Assets** 下載 `pdf-unlock-win.zip`，**整個解壓縮**後，
+雙擊資料夾中的 `unlock_pdf.exe` 並選擇 PDF，或把 PDF／資料夾拖到 exe 上。
+處理結果會停留在視窗中，按 Enter 才會關閉。
 
-若最新 Release 沒有單獨的 exe，下載 `pdf-unlock-win.zip`，解壓後使用其中的 `unlock_pdf.exe`。
-
+> `unlock_pdf.exe` 必須和同資料夾的 `_internal` 一起使用，不要單獨把 exe 複製出來。
 > 不要下載「Source code」。Source code 是給開發者用的，沒有 `unlock_pdf.exe`。
 
 ### 2. 安裝右鍵選單（可選）
-如需右鍵功能，下載並解壓 `pdf-unlock-win.zip` 到「固定」位置，
-例如 `C:\Tools\pdf-unlock\`。
+如需右鍵功能，把解壓後的資料夾放到「固定」位置，例如 `C:\Tools\pdf-unlock\`。
 **不要放在下載資料夾或桌面**，右鍵選單會記住這個路徑，檔案搬走就失效。
 
 解壓後資料夾內容：
 
 ```
 unlock_pdf.exe
+_internal\
 install.bat
 uninstall.bat
 README.md
@@ -84,7 +83,7 @@ python unlock_pdf.py --uninstall-menu
 ### 自行打包 exe
 
 ```powershell
-build_exe.bat      # 產生 dist\unlock_pdf.exe
+build_exe.bat      # 產生 dist\unlock_pdf\（exe 連同 _internal 資料夾）
 ```
 
 ---
@@ -116,6 +115,7 @@ bash install_ubuntu.sh
 |------|------|
 | 顯示 `FAIL (需要開啟密碼…)` | 這類 PDF 開啟就要密碼，改用 `-p 密碼`（命令列） |
 | 右鍵選單沒出現 | Win11 請點「顯示更多選項」；或重新執行 `install.bat` |
+| 視窗空白很久才有反應 | 請改用 v1.0.4 以後的 zip 版本；舊版單一 exe 每次啟動需解壓約 30 秒 |
 | 執行 `install.bat` 顯示找不到 exe | 你下載了 Source code；請重新下載 Releases 的 `pdf-unlock-win.zip` |
 | 搬動資料夾後右鍵失效 | 在新位置重新執行 `install.bat` |
 | 解鎖後仍無法複製文字 | 該 PDF 可能是掃描圖片，沒有文字層，需要 OCR |

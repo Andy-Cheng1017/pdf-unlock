@@ -24,16 +24,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m unittest discover -s tests -v
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          pyinstaller --onefile --console --name unlock_pdf --collect-all pikepdf unlock_pdf.py
+          # onedir 而非 onefile：onefile 每次啟動都要解壓到暫存並被防毒掃描，約需 30 秒
+          pyinstaller --onedir --console --name unlock_pdf unlock_pdf.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          New-Item release -ItemType Directory | Out-Null
-          Copy-Item install.bat, uninstall.bat, dist\unlock_pdf.exe release\
-          Copy-Item README.md release\
-          Compress-Archive -Path release\* -DestinationPath pdf-unlock-win.zip
+          Copy-Item install.bat, uninstall.bat, README.md dist\unlock_pdf\
+          Compress-Archive -Path dist\unlock_pdf\* -DestinationPath pdf-unlock-win.zip
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            pdf-unlock-win.zip
-            dist/unlock_pdf.exe
+          files: pdf-unlock-win.zip
           fail_on_unmatched_files: true
